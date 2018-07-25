@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://github.com/yiisoft" target="_blank">
+    <a href="https://custom-it.ru" target="_blank">
         <img src="https://avatars1.githubusercontent.com/u/31646762?s=200&v=4" height="100px">
     </a>
     <h1 align="center">Yii2 ExcelReport Extension</h1>
@@ -36,9 +36,9 @@ Once the extension is installed, simply use it in your code by  :
 
 ```php
 echo \customit\excelreport\ExcelReport::widget([
-            'columns' => $gridColumns,
-            'stripHtml' => false,
-            'searchClass' => get_class($searchModel),
-            'searchMethod' => 'search',
-        ]);
+    'columns' => $gridColumns,
+    'stripHtml' => false,
+    'searchClass' => get_class($searchModel),
+    'searchMethod' => 'search',
+]);
 ```
