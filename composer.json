@@ -1,0 +1,24 @@
+{
+    "name": "custom-it/yii2-excel-report",
+    "description": "Module for generate excel file from GridView content",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","excel","report","excelreport"],
+    "license": "BSD-4-Clause",
+    "authors": [
+        {
+            "name": "Zodiac163",
+            "email": "vm@custom-it.ru"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "customit\\excelreport\\": "src"
+        }
+    },
+    "extra": {
+        "bootstrap": "customit\\excelreport\\Bootstrap"
+    }
+}
