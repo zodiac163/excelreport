@@ -15,6 +15,9 @@ echo Html::hiddenInput('queueId', $queueId, ['id' => 'queueId']);
 <div id="progress-file" style="display: none;">
     <a href="/excelreport/report/download" target="_blank"><?= Yii::t('customit','Download last report') ?></a>
 </div>
+<div id="reset-progress">
+    <a id="reset-progress-link" href="#"><?= Yii::t('customit','Stop generation') ?></a>
+</div>
 
 <script>
     var timerId = setInterval(function() {
@@ -25,6 +28,7 @@ echo Html::hiddenInput('queueId', $queueId, ['id' => 'queueId']);
             $('#reportProgress').html(Math.floor($percent)+'%');
             if (data['progress'][0] == data['progress'][1]) {
                 clearInterval(timerId);
+                $('#reset-progress').hide();
                 $('#progress-file').show();
                 $('#reportProgress').removeClass('active');
                 $('#reportProgress').removeClass('progress-bar-striped');
@@ -32,4 +36,14 @@ echo Html::hiddenInput('queueId', $queueId, ['id' => 'queueId']);
             }
         });
     }, 2000);
+    
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        $('#reset-progress-link').click(function (e) {
+            e.preventDefault();
+            $.post( "/excelreport/report/reset", { id: $('#queueId').val() }, function( data ) {
+                window.location.href = window.location.href;
+            });
+        });
+    });
+    
 </script>

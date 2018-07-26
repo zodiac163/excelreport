@@ -15,7 +15,7 @@ class ProgressBehavior extends Behavior
     {
         return [
             Queue::EVENT_BEFORE_EXEC => function (ExecEvent $event) {
-                $this->jobId = $event->id;
+                $this->jobId = $event->id;                
             }
         ];
     }
@@ -30,5 +30,10 @@ class ProgressBehavior extends Behavior
     {
         $key = __CLASS__ . $jobId;
         return Yii::$app->cache->get($key) ?: [0, 1];
+    }
+
+    public function setManuallyProgress($jobId, $pos, $len) {
+        $key = __CLASS__ . $jobId;
+        Yii::$app->cache->set($key, [$pos, $len]);
     }
 }

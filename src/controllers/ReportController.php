@@ -43,4 +43,10 @@ class ReportController extends Controller {
             throw new NotFoundHttpException('Такого файла не существует ');
         }
     }
+
+    public function actionReset() {
+        $jobId = $_POST['id'];
+        Yii::$app->queue->setManuallyProgress($jobId, 1, 1);
+        Yii::$app->session->remove('excel-report-progress');
+    }
 }

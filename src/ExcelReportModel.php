@@ -85,6 +85,10 @@ class ExcelReportModel {
      * @var Queue
      */
     protected $queue;
+    /*
+     * @var array
+     */
+    protected $_bodyData = [];
 
     /**
      * ExcelReportModel constructor.
@@ -101,9 +105,27 @@ class ExcelReportModel {
         $searchModel = new $searchClass;
         $dataProvider = call_user_func_array([$searchModel, $searchMethod], $searchParams);
         $this->_provider = $dataProvider;
-        $this->_columns = $columns;
+        $this->_columns = $this->cleanColumns($columns);
         $this->queue = $queue;
         $this->filename = $fileName;
+    }
+
+    public function cleanColumns($columns) {
+        foreach ($columns as $key => &$column) {
+            if (!empty($column['hiddenFromExport'])) {
+                unset($columns[$key]);
+                continue;
+            }            
+            
+            if (isset($column['class']) && $column['class'] == 'yii\\grid\\ActionColumn') {
+                unset($columns[$key]);
+            } elseif (isset($column['class']) && $column['class'] == 'yii\\grid\\SerialColumn') {
+                unset($columns[$key]);
+            } elseif (isset($column['value'])) {
+                $column['attribute'] = $column['value'];
+            }            
+        }
+        return $columns;
     }
 
     /**
@@ -129,9 +151,10 @@ class ExcelReportModel {
         }
         $this->initExcelWorksheet();
         $this->generateHeader();
-        $this->generateBody();
+        $totalCount = $this->generateBody();
         //Write data to file
         $this->_objWriter->close();
+        $this->queue->setProgress($this->_endRow, $totalCount);
         //Unset vars
         $this->cleanup();
     }
@@ -287,17 +310,17 @@ class ExcelReportModel {
      */
     protected function setRowValues($values, $style = null)
     {
-        if ($this->stripHtml) {
+        /*if ($this->stripHtml) {
             array_map('strip_tags', $values);
         }
         array_walk($values, function (&$item, $key) {
             html_entity_decode($item, ENT_QUOTES, 'UTF-8');
-        });
+        });*/
 
         if (!empty($style)) {
             $this->_objWriter->addRowWithStyle($values, $style);
         } else {
-            $this->_objWriter->addRow($values);
+            $this->_objWriter->addRows($values);
         }
     }
 
@@ -309,21 +332,16 @@ class ExcelReportModel {
     public function generateBody()
     {
         $this->_endRow = 0;
-        $offset = 1000;
         $totalCount = $this->_provider->getTotalCount();
-        $loops = ceil($totalCount / $offset);
-
-        for ($i=0; $i <= $loops; $i++) {
-            $data = $this->_provider->query->limit($offset)->offset($i*$offset)->all();
-            foreach ($data as $key => $value) {
-                $this->generateRow($value, $this->_endRow);
-                $this->_endRow++;
-                //Change queue process progress
-                $this->queue->setProgress($this->_endRow, $totalCount);
-            }
+        
+        foreach ($this->_provider->query->each() as $value) {        
+            $this->generateRow($value, $this->_endRow);
+            $this->_endRow++;
+            //Change queue process progress                
+            $this->queue->setProgress($this->_endRow-1, $totalCount);
         }
-
-        return $this->_endRow;
+        $this->setRowValues($this->_bodyData);
+        return $totalCount;
     }
 
     /**
@@ -336,32 +354,23 @@ class ExcelReportModel {
         $this->_endCol = 0;
         $rowData = [];
         foreach ($this->_columns as $column) {
-            if (!empty($column['hiddenFromExport'])) {
-                continue;
-            }
-            $format = $this->enableFormatter && isset($column['format']) ? $column['format'] : 'raw';
+            $var = $column['attribute'];
+            $rowData[] = isset($column['format']) ? Yii::$app->formatter->format($data->$var, $column['format']) : $data->$var;
+            /*$format = $this->enableFormatter && isset($column['format']) ? $column['format'] : 'raw';
             $value = null;
-            if (isset($column['class']) && $column['class'] == 'yii\\grid\\ActionColumn') {
-                $value = null;
-            } elseif (isset($column['class']) && $column['class'] == 'yii\\grid\\SerialColumn') {
-                $value = $this->_endRow+1;
-            } elseif (isset($column['value'])) {
-                $var = $column['value'];
-                $value = $data->$var;
-            } elseif (isset($column['attribute'])) {
+            if (isset($column['attribute'])) {
                 $var = $column['attribute'];
                 $value = $data->$var;
-            }
-            $this->_endCol++;
+            }            
             if (isset($value) && $value !== '' && isset($format)) {
                 $value = Yii::$app->formatter->format($value, $format);
             } else {
                 $value = '';
             }
-            $rowData[] = $value;
+            $rowData[] = $value;*/
         }
-
-        $this->setRowValues($rowData);
+        $this->_bodyData[] = $rowData; 
+        //$this->setRowValues($rowData);
     }
 
     /**
