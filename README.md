@@ -7,7 +7,8 @@
 </p>
 
 
-An extension for generate excel file from GridView content. When used together in a GridView, saves the results of filtering and sorting in a file. What you see in the GridView, and it will be imported into a file.
+An extension for generate excel file from GridView content. When used with a GridView, extention saves the results of filtering and sorting in a file. Everything you see in the GridView will be imported into a file. All tasks are run in the background, the user can check the progress with the progressbar. It is not necessary to remain on the current page during the execution. You can continue working with the application. When the file is created, the download link will remain on the page with the widget until it is used, the user can use it at any time. When the file is downloaded, you can start generating a new report.
+
 **To run tasks in the background, the extension uses a [queues](https://github.com/yiisoft/yii2-queue).**
 
 [![Latest Stable Version](https://poser.pugx.org/custom-it/yii2-excel-report/v/stable.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
