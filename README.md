@@ -7,7 +7,7 @@
 </p>
 
 
-An extension for generate excel file from GridView content
+An extension for generate excel file from GridView content. When used together in a GridView, saves the results of filtering and sorting in a file. What you see in the GridView, and it will be imported into a file.
 
 [![Latest Stable Version](https://poser.pugx.org/custom-it/yii2-excel-report/v/stable.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
 [![Total Downloads](https://poser.pugx.org/custom-it/yii2-excel-report/downloads.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
@@ -32,16 +32,37 @@ or add
 to the require section of your `composer.json` file.
 
 
+Configuration
+-------------
+Before using the module, configure the [queues](https://raw.githubusercontent.com/yiisoft/yii2-queue/master/docs/guide/README.md)
+
+
 Usage
 -----
 
 Once the extension is installed, simply use it in your code by  :
 
 ```php
+$gridColumns = [
+    ['class' => 'yii\grid\SerialColumn'],
+    'id',
+    'name',
+    'date',
+    'post',
+    ['class' => 'yii\grid\ActionColumn'],
+];
+
+// Render widget
 echo \customit\excelreport\ExcelReport::widget([
     'columns' => $gridColumns,
-    'stripHtml' => false,
     'searchClass' => get_class($searchModel),
-    'searchMethod' => 'search',
+    'searchMethod' => 'search', // The method 'search' is used by default. Fill this property if another method is used
+]);
+
+// Can be used with or without a GridView
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
+    'filterModel' => $searchModel,
+    'columns' => $gridColumns
 ]);
 ```
