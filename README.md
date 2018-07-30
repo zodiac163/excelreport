@@ -8,6 +8,7 @@
 
 
 An extension for generate excel file from GridView content. When used together in a GridView, saves the results of filtering and sorting in a file. What you see in the GridView, and it will be imported into a file.
+**To run tasks in the background, the extension uses a [queues](https://github.com/yiisoft/yii2-queue).**
 
 [![Latest Stable Version](https://poser.pugx.org/custom-it/yii2-excel-report/v/stable.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
 [![Total Downloads](https://poser.pugx.org/custom-it/yii2-excel-report/downloads.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
@@ -34,7 +35,7 @@ to the require section of your `composer.json` file.
 
 Configuration
 -------------
-Before using the module, configure the [queues](https://raw.githubusercontent.com/yiisoft/yii2-queue/master/docs/guide/README.md)
+Before using the module, configure the [queues](https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/README.md)
 
 
 Usage
