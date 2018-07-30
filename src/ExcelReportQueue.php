@@ -28,7 +28,7 @@ class ExcelReportQueue extends BaseObject implements RetryableJobInterface {
 
     public function getTtr()
     {
-        return 25 * 60;
+        return 5 * 60;
     }
 
     public function canRetry($attempt, $error)

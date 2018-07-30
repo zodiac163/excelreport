@@ -2,7 +2,6 @@
 
 namespace customit\excelreport;
 
-use app\models\AnketaSearch;
 use Yii;
 use Box\Spout\Common\Exception\IOException;
 use Box\Spout\Common\Exception\UnsupportedTypeException;
@@ -123,7 +122,8 @@ class ExcelReportModel {
                 unset($columns[$key]);
             } elseif (isset($column['value'])) {
                 $column['attribute'] = $column['value'];
-            }            
+            }
+            
         }
         return $columns;
     }
@@ -258,26 +258,7 @@ class ExcelReportModel {
     public function initExcelWorksheet()
     {
         $this->_objWorksheet = $this->_objWriter->getCurrentSheet();
-        $this->_objWorksheet->setName('Выгрузка');
-    }
-
-    /**
-     * Returns an excel column name.
-     *
-     * @param integer $index the column index number
-     *
-     * @return string
-     */
-    public static function columnName($index)
-    {
-        $i = intval($index) - 1;
-        if ($i >= 0 && $i < 26) {
-            return chr(ord('A') + $i);
-        }
-        if ($i > 25) {
-            return (self::columnName($i / 26)) . (self::columnName($i % 26 + 1));
-        }
-        return 'A';
+        $this->_objWorksheet->setName(Yii::t('customit','Report'));
     }
 
     /**
@@ -310,13 +291,6 @@ class ExcelReportModel {
      */
     protected function setRowValues($values, $style = null)
     {
-        /*if ($this->stripHtml) {
-            array_map('strip_tags', $values);
-        }
-        array_walk($values, function (&$item, $key) {
-            html_entity_decode($item, ENT_QUOTES, 'UTF-8');
-        });*/
-
         if (!empty($style)) {
             $this->_objWriter->addRowWithStyle($values, $style);
         } else {
@@ -332,14 +306,15 @@ class ExcelReportModel {
     public function generateBody()
     {
         $this->_endRow = 0;
-        $totalCount = $this->_provider->getTotalCount();
+        $totalCount = $this->_provider->getTotalCount();        
         
-        foreach ($this->_provider->query->each() as $value) {        
-            $this->generateRow($value, $this->_endRow);
+        foreach ($this->_provider->query->each() as $value) {  
+            $this->generateRow($value);
             $this->_endRow++;
             //Change queue process progress                
-            $this->queue->setProgress($this->_endRow-1, $totalCount);
+            if (($this->_endRow % 1000) == 0) $this->queue->setProgress($this->_endRow-1, $totalCount);
         }
+
         $this->setRowValues($this->_bodyData);
         return $totalCount;
     }
@@ -352,29 +327,16 @@ class ExcelReportModel {
     public function generateRow($data)
     {
         $this->_endCol = 0;
-        $rowData = [];
+        $key = count($this->_bodyData);
+
         foreach ($this->_columns as $column) {
             $var = $column['attribute'];
-            $rowData[] = isset($column['format']) ? Yii::$app->formatter->format($data->$var, $column['format']) : $data->$var;
-            /*$format = $this->enableFormatter && isset($column['format']) ? $column['format'] : 'raw';
-            $value = null;
-            if (isset($column['attribute'])) {
-                $var = $column['attribute'];
-                $value = $data->$var;
-            }            
-            if (isset($value) && $value !== '' && isset($format)) {
-                $value = Yii::$app->formatter->format($value, $format);
-            } else {
-                $value = '';
-            }
-            $rowData[] = $value;*/
+            $this->_bodyData[$key][] = isset($column['format']) ? Yii::$app->formatter->format($data->$var, $column['format']) : $data->$var;                        
         }
-        $this->_bodyData[] = $rowData; 
-        //$this->setRowValues($rowData);
     }
 
     /**
-     * Cleans up the export file and current object instance
+     * Cleans up current objects instance
      */
     protected function cleanup()
     {
