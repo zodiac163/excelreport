@@ -289,6 +289,7 @@ class ExcelReportModel {
      */
     protected function setRowValues($values, $style = null)
     {
+        if ($this->stripHtml) { array_walk($values, 'strip_tags'); }
         if (!empty($style)) {
             $this->_objWriter->addRowWithStyle($values, $style);
         } else {
