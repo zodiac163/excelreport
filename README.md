@@ -38,6 +38,13 @@ Configuration
 -------------
 Before using the module, configure the [queues](https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/README.md)
 
+Add progress behavior to Queue configuration:
+```php
+'queue' => [
+    // ... you Queue configuration ...
+    'as progress' => \customit\excelreport\ProgressBehavior::class,
+],
+```
 
 Usage
 -----
@@ -57,8 +64,7 @@ $gridColumns = [
 // Render widget
 echo \customit\excelreport\ExcelReport::widget([
     'columns' => $gridColumns,
-    'searchClass' => get_class($searchModel),
-    'searchMethod' => 'search', // The method 'search' is used by default. Fill this property if another method is used
+    'dataProvider' => $dataProvider,
 ]);
 
 // Can be used with or without a GridView
