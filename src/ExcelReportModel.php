@@ -14,6 +14,7 @@ use Box\Spout\Writer\Style\Color;
 use yii\base\InvalidConfigException;
 use box\spout;
 use yii\queue\Queue;
+use customit\excelreport\ExcelReportHelper;
 
 class ExcelReportModel {
 
@@ -33,10 +34,6 @@ class ExcelReportModel {
      * @var bool
      */
     public $stripHtml = true;
-    /*
-     * @var string
-     */
-    public $searchClass;
     /*
      * @var string
      */
@@ -91,24 +88,25 @@ class ExcelReportModel {
 
     /**
      * ExcelReportModel constructor.
-     * @param array $columns array of gridview columns
+     * @param string $columns base64 serialize array of gridview columns
      * @param Queue $queue current queue for status reports
      * @param string $fileName
-     * @param string $searchClass
-     * @param string $searchMethod
-     * @param array $searchParams
+     * @param string $dataProvider base64 serialize array of ActiveDataProvider
      * @param array $config
      */
-    public function __construct($columns, $queue, $fileName, $searchClass, $searchMethod, $searchParams, array $config = [])
+    public function __construct($columns, $queue, $fileName, $dataProvider, array $config = [])
     {
-        $searchModel = new $searchClass;
-        $dataProvider = call_user_func_array([$searchModel, $searchMethod], $searchParams);
-        $this->_provider = $dataProvider;
-        $this->_columns = $this->cleanColumns($columns);
+        $this->_provider = ExcelReportHelper::reverseClosureDetect(unserialize(base64_decode($dataProvider)));
+        $this->_columns = $this->cleanColumns(ExcelReportHelper::reverseClosureDetect(unserialize(base64_decode($columns))));
         $this->queue = $queue;
         $this->filename = $fileName;
     }
 
+    /**
+     * Remove extra columns
+     * @param array $columns array of gridview columns
+     * @return array
+     */
     public function cleanColumns($columns) {
         foreach ($columns as $key => &$column) {
             if (!empty($column['hiddenFromExport'])) {
@@ -330,8 +328,24 @@ class ExcelReportModel {
         $key = count($this->_bodyData);
 
         foreach ($this->_columns as $column) {
-            $var = $column['attribute'];
-            $this->_bodyData[$key][] = isset($column['format']) ? Yii::$app->formatter->format($data->$var, $column['format']) : $data->$var;                        
+            $var = isset($column['attribute']) ? $column['attribute'] : null;
+            if (is_string($var)) {
+                $valueChain = explode('.', $var);
+                $bufObj = $data;
+                if (count($valueChain) > 1) {
+                    foreach ($valueChain as $vc) {
+                        $bufObj = is_object($bufObj) ? $bufObj->$vc : "---";
+                    }
+                    $value = $bufObj;
+                } else {
+                    $value = is_object($data) ? $data->$var : "---";
+                }
+            } elseif (is_object($var) && ExcelReportHelper::is_closure($var)) {
+                $value = call_user_func($var, $data);
+            } else {
+                $value = null;
+            }
+            $this->_bodyData[$key][] = isset($column['format']) ? Yii::$app->formatter->format($value, $column['format']) : $value;
         }
     }
 

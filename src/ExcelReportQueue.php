@@ -10,18 +10,14 @@ class ExcelReportQueue extends BaseObject implements RetryableJobInterface {
     public $columns;
     public $stripHtml;
     public $fileName;
-    public $searchClass;
-    public $searchMethod;
-    public $searchParams;
+    public $dataProvider;
 
     public function execute($queue) {
         $m = new ExcelReportModel(
             $this->columns,
             $queue,
             $this->fileName,
-            $this->searchClass,
-            $this->searchMethod,
-            $this->searchParams
+            $this->dataProvider
         );
         $m->start();
     }

@@ -4,14 +4,13 @@ namespace customit\excelreport;
 
 use Yii;
 use yii\base\Widget;
+use customit\excelreport\ExcelReportHelper;
 
 class ExcelReport extends Widget
 {
     public $columns;
     public $stripHtml;
-    public $searchClass;
-    public $searchMethod = 'search';
-    public $searchParams = [];
+    public $dataProvider;
 
     private $formOptions;
     private $id = "excelReportFrom";
@@ -30,15 +29,15 @@ class ExcelReport extends Widget
                 $fileName = $data['fileName'];
                 $id = $data['queueid'];
             } else {
+                $this->columns = base64_encode(serialize(ExcelReportHelper::closureDetect($this->columns)));
+                $this->dataProvider = base64_encode(serialize(ExcelReportHelper::closureDetect($this->dataProvider)));
                 $fileName = Yii::$app->security->generateRandomString();
                 $searchArray = array_merge([Yii::$app->request->queryParams], $this->searchParams);
                 $id = Yii::$app->queue->push(new ExcelReportQueue([
                     'columns' => $this->columns,
                     'stripHtml' => $this->stripHtml,
                     'fileName' => $fileName,
-                    'searchClass' => $this->searchClass,
-                    'searchMethod' => $this->searchMethod,
-                    'searchParams' => $searchArray,
+                    'dataProvider' => $this->dataProvider,
                 ]));
 
                 Yii::$app->session->set('excel-report-progress', serialize(['fileName' => $fileName, 'queueid' => $id]));
