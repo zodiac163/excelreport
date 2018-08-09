@@ -289,7 +289,11 @@ class ExcelReportModel {
      */
     protected function setRowValues($values, $style = null)
     {
-        if ($this->stripHtml) { array_walk($values, 'strip_tags'); }
+        if ($this->stripHtml) {
+            array_walk_recursive($values, function (&$item, $key) {
+                $item = strip_tags($item);
+            });
+        }
         if (!empty($style)) {
             $this->_objWriter->addRowWithStyle($values, $style);
         } else {
