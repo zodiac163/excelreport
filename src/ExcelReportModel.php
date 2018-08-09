@@ -273,7 +273,13 @@ class ExcelReportModel {
         //Generate labels array
         foreach ($this->_columns as $column) {
             $this->_endCol++;
-            $head = (isset($column['label'])) ? $column['label'] : '#';
+            if (isset($column['label'])) {
+                $head =  $column['label'];
+            } elseif (isset($column['header'])) {
+                $head =  $column['header'];
+            } else {
+                $head = '#';
+            }
             $headValues[] = $head;
         }
         //Write header content
