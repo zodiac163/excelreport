@@ -32,7 +32,6 @@ class ExcelReport extends Widget
                 $this->columns = base64_encode(serialize(ExcelReportHelper::closureDetect($this->columns)));
                 $this->dataProvider = base64_encode(serialize(ExcelReportHelper::closureDetect($this->dataProvider)));
                 $fileName = Yii::$app->security->generateRandomString();
-                $searchArray = array_merge([Yii::$app->request->queryParams], $this->searchParams);
                 $id = Yii::$app->queue->push(new ExcelReportQueue([
                     'columns' => $this->columns,
                     'stripHtml' => $this->stripHtml,
