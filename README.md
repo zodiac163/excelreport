@@ -11,6 +11,8 @@ An extension for generate excel file from GridView content. When used with a Gri
 
 **To run tasks in the background, the extension uses a [queues](https://github.com/yiisoft/yii2-queue).**
 
+Use the extension only makes sense to generate large files (> 50,000 lines).
+
 [![Latest Stable Version](https://poser.pugx.org/custom-it/yii2-excel-report/v/stable.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
 [![Total Downloads](https://poser.pugx.org/custom-it/yii2-excel-report/downloads.svg)](https://packagist.org/packages/custom-it/yii2-excel-report)
 
