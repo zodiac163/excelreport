@@ -1,3 +1,10 @@
+:no_entry:
+```diff
+- !!! Library is deprecated !!!
+```
+:no_entry:
+
+
 <p align="center">
     <a href="https://custom-it.ru" target="_blank">
         <img src="https://avatars1.githubusercontent.com/u/31646762?s=200&v=4" height="100px">
